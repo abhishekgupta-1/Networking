@@ -45,15 +45,17 @@ int main(int argc,char* arg[]){
 	int sz;
 	sz = sizeof(client_addr);
 	new_socket = accept(server_socket,(struct sockaddr *)&client_addr, &sz);
+	printf("Client connected.\n");
 	strcpy(buffer,"Welcome to hop world!\n");
 	send(new_socket,buffer,strlen(buffer)+1,0);
+	char * inp = NULL;
 	while (1) {
 		recv(new_socket,buffer,sizeof(buffer),0);
-		printf("Client : %s\n", buffer);
+		printf("Client : %s", buffer);
 		printf("Server : ");
-//		getline(&buffer,&sz,stdin);
-		scanf("%s",buffer);
-		send(new_socket,buffer,strlen(buffer)+1,0);
+		getline(&inp,&sz,stdin);
+		//scanf("%s",buffer);
+		send(new_socket,inp,strlen(inp)+1,0);
 	}
 	return 0;
 }
