@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <pthread.h>
 #include <sys/socket.h>
 #include <errno.h>
 #include <arpa/inet.h> 
@@ -7,6 +8,16 @@
 #include <string.h>
 
 //Client Program
+
+void* listening_funct(void * argptr){
+	char buffer[1024];
+	int socket_no = *((int*)argptr);
+	while (1){
+		recv(socket_no,buffer,sizeof(buffer),0);
+		printf("Server : %s",buffer);
+	}
+	return;
+}
 
 int main(int argc,char* arg[]){
 	if (argc<3){
@@ -29,13 +40,12 @@ int main(int argc,char* arg[]){
 	char buffer[1024];
 	char * inp = NULL;
 	int sz;
+	pthread_t thread;
+	int su = pthread_create(&thread,NULL,listening_funct,&socket_no);
 	while (1){
-		recv(socket_no,buffer,sizeof(buffer),0);	
-		printf("Server : %s",buffer);
-		printf("Client : ");
 		getline(&inp,&sz,stdin);
-		//scanf("%s",buffer);
 		send(socket_no,inp,strlen(inp)+1,0);
+		//printf("Client : %s",inp);
 	}
 	return 0;
 }

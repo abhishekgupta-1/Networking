@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <pthread.h>
 #include <sys/socket.h>
 #include <netinet/in.h> 
 #include <string.h>
@@ -7,6 +8,17 @@
 #include <errno.h>
 
 //Server file
+
+
+void* listening_funct(void * argptr){
+	char buffer[1024];
+	int socket_no = *((int*)argptr);
+	while (1){
+		recv(socket_no,buffer,sizeof(buffer),0);
+		printf("Client : %s",buffer);
+	}
+	return;
+}
 
 int main(int argc,char* arg[]){
 	
@@ -40,7 +52,6 @@ int main(int argc,char* arg[]){
 		perror("Error in listening");
 		return 0;
 	}
-	
 	struct sockaddr_storage client_addr;
 	int sz;
 	sz = sizeof(client_addr);
@@ -49,13 +60,12 @@ int main(int argc,char* arg[]){
 	strcpy(buffer,"Welcome to hop world!\n");
 	send(new_socket,buffer,strlen(buffer)+1,0);
 	char * inp = NULL;
+	pthread_t thread;
+	int succ = pthread_create(&thread,NULL,listening_funct,&new_socket);
 	while (1) {
-		recv(new_socket,buffer,sizeof(buffer),0);
-		printf("Client : %s", buffer);
-		printf("Server : ");
 		getline(&inp,&sz,stdin);
-		//scanf("%s",buffer);
 		send(new_socket,inp,strlen(inp)+1,0);
+		//printf("Server : %s",inp);
 	}
 	return 0;
 }
